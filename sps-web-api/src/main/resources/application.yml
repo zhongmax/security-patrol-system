@@ -1,0 +1,10 @@
+spring:
+  profiles:
+    active: base, admin
+
+server:
+  port: 9001
+logging:
+  level:
+    root: info
+    com.csmaxwell.sps.web: debug

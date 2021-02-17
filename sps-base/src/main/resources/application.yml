@@ -1,0 +1,8 @@
+spring:
+  profiles:
+    active: base
+
+logging:
+  level:
+    root: info
+    com.csmaxwell.sps.base: debug

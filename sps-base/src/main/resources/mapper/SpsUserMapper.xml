@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.csmaxwell.sps.base.mapper.SpsUserMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.csmaxwell.sps.base.domain.SpsUser">
+        <id column="id" property="id" />
+        <result column="username" property="username" />
+        <result column="password" property="password" />
+        <result column="phone" property="phone" />
+        <result column="status" property="status" />
+        <result column="gender" property="gender" />
+        <result column="age" property="age" />
+        <result column="create_time" property="createTime" />
+    </resultMap>
+
+    <select id="getUserIdList" resultType="java.lang.Long">
+        select DISTINCT ur.user_id
+        from sps_role_permission rp
+                 LEFT JOIN sps_user_role ur on rp.role_id = ur.role_id
+        where rp.permission_id = #{permissionId}
+    </select>
+
+</mapper>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.csmaxwell.sps.base.mapper.SpsPermissionMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.csmaxwell.sps.base.domain.SpsPermission">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="permission" property="permission" />
+        <result column="description" property="description" />
+        <result column="category_id" property="categoryId" />
+        <result column="create_time" property="createTime" />
+    </resultMap>
+
+    <select id="getPermissionList" resultType="com.csmaxwell.sps.base.domain.SpsPermission">
+        SELECT p.id          id,
+               p.name        name,
+               p.permission  permission,
+               p.description description,
+               p.category_id categoryId,
+               p.create_time createTime
+        FROM sps_user_role ur
+                 LEFT JOIN sps_role r ON ur.role_id = r.id
+                 LEFT JOIN sps_role_permission rp ON r.id = rp.role_id
+                 LEFT JOIN sps_permission p ON p.id = rp.permission_id
+        WHERE ur.user_id = #{userId}
+          AND p.id IS NOT NULL
+        GROUP BY p.id
+    </select>
+
+    <select id="getPermissionListByRoleId" resultType="com.csmaxwell.sps.base.domain.SpsPermission">
+        SELECT p.id          id,
+               p.name        name,
+               p.permission  permission,
+               p.description description,
+               p.category_id categoryId,
+               p.create_time createTime
+        FROM sps_role_permission rp
+                 LEFT JOIN sps_permission p ON rp.permission_id = p.id
+        WHERE rp.role_id = #{roleId}
+    </select>
+
+</mapper>

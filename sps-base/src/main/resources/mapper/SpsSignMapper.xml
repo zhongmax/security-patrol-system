@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.csmaxwell.sps.base.mapper.SpsSignMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.csmaxwell.sps.base.domain.SpsSign">
+        <id column="id" property="id" />
+        <result column="point_id" property="pointId" />
+        <result column="user_id" property="userId" />
+        <result column="date" property="date" />
+        <result column="status" property="status" />
+    </resultMap>
+
+</mapper>

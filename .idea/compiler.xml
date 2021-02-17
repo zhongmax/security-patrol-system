@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="sps-web-api" />
+        <module name="sps-wx-api" />
+        <module name="sps-base" />
+        <module name="sps-all" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="sps-db" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="sps-all" options="-parameters" />
+      <module name="sps-base" options="-parameters" />
+      <module name="sps-db" options="-parameters" />
+      <module name="sps-web-api" options="-parameters" />
+      <module name="sps-wx-api" options="-parameters" />
+    </option>
+  </component>
+</project>
