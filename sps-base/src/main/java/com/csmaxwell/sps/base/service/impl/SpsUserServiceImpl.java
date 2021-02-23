@@ -8,7 +8,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.csmaxwell.sps.base.domain.*;
-import com.csmaxwell.sps.base.dto.UserParam;
+import com.csmaxwell.sps.base.dto.UserRegisterParam;
 import com.csmaxwell.sps.base.dto.UpdateUserPasswordParam;
 import com.csmaxwell.sps.base.mapper.SpsPermissionMapper;
 import com.csmaxwell.sps.base.mapper.SpsRoleMapper;
@@ -78,6 +78,19 @@ public class SpsUserServiceImpl extends ServiceImpl<SpsUserMapper, SpsUser> impl
     }
 
     @Override
+    public SpsUser getUserByPhone(String phone) {
+        SpsUser user = new SpsUser();
+        QueryWrapper<SpsUser> wrapper = new QueryWrapper<>();
+        wrapper.lambda().eq(SpsUser::getPhone, phone);
+        List<SpsUser> userList = list(wrapper);
+        if (userList != null && userList.size() > 0) {
+            user = userList.get(0);
+            return user;
+        }
+        return null;
+    }
+
+    @Override
     public List<SpsPermission> getPermissionList(Long userId) {
         List<SpsPermission> permissionList = userCacheService.getPermissionList(userId);
         if (CollUtil.isNotEmpty(permissionList)) {
@@ -102,9 +115,9 @@ public class SpsUserServiceImpl extends ServiceImpl<SpsUserMapper, SpsUser> impl
     }
 
     @Override
-    public SpsUser register(UserParam userParam) {
+    public SpsUser register(UserRegisterParam userRegisterParam) {
         SpsUser spsUser = new SpsUser();
-        BeanUtils.copyProperties(userParam, spsUser);
+        BeanUtils.copyProperties(userRegisterParam, spsUser);
         spsUser.setCreateTime(new Date());
         spsUser.setStatus(1);
         //查询是否有相同用户名的用户

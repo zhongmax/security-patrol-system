@@ -29,7 +29,7 @@ public interface SpsMenuService extends IService<SpsMenu> {
     /**
      * 分页查询菜单
      */
-    Page<SpsMenu> list(Long parentId, Integer pageSize, Integer pageNum);
+    Page<SpsMenu> list(Long pId, Integer pageSize, Integer pageNum);
 
     /**
      * 树形结构返回所有列表

@@ -8,9 +8,10 @@ import com.csmaxwell.sps.base.domain.SpsRole;
 import com.csmaxwell.sps.base.domain.SpsUser;
 import com.csmaxwell.sps.base.dto.UpdateUserPasswordParam;
 import com.csmaxwell.sps.base.dto.UserLoginParam;
-import com.csmaxwell.sps.base.dto.UserParam;
+import com.csmaxwell.sps.base.dto.UserRegisterParam;
 import com.csmaxwell.sps.base.service.SpsRoleService;
 import com.csmaxwell.sps.base.service.SpsUserService;
+import com.google.code.kaptcha.Producer;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +19,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import sun.misc.BASE64Encoder;
 
+import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
@@ -27,12 +34,12 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * 用户Controller
+ * Web端用户Controller
  * Created by maxwell on 2021/2/16.
  */
 @Controller
 @Api(tags = "SpsUserController", description = "用户管理")
-@RequestMapping("/user")
+@RequestMapping("/web/user")
 public class SpsUserController {
 
     @Value("${jwt.tokenHeader}")
@@ -44,11 +51,14 @@ public class SpsUserController {
     @Autowired
     private SpsRoleService roleService;
 
+    @Autowired
+    private Producer kaptchaProducer;
+
     @ApiOperation(value = "注册")
     @RequestMapping(value = "/register", method = RequestMethod.POST)
     @ResponseBody
-    public CommonResult<SpsUser> register(@Validated @RequestBody UserParam userParam) {
-        SpsUser spsUser = userService.register(userParam);
+    public CommonResult<SpsUser> register(@Validated @RequestBody UserRegisterParam userRegisterParam) {
+        SpsUser spsUser = userService.register(userRegisterParam);
         if (spsUser == null) {
             return CommonResult.failed();
         }
@@ -59,7 +69,8 @@ public class SpsUserController {
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     @ResponseBody
     public CommonResult login(@Validated @RequestBody UserLoginParam userLoginParam) {
-        String token = userService.login(userLoginParam.getUsername(), userLoginParam.getPassword());
+        String token = userService.login(userLoginParam.getUsername(),
+                userLoginParam.getPassword());
         if (token == null) {
             return CommonResult.validateFailed("用户名或密码错误");
         }
@@ -67,6 +78,38 @@ public class SpsUserController {
         tokenMap.put("token", token);
         tokenMap.put("tokenHead", tokenHead);
         return CommonResult.success(tokenMap);
+    }
+
+    @ApiOperation(value = "获取验证码")
+    @RequestMapping(value = "/kaptcha", method = RequestMethod.GET)
+    @ResponseBody
+    public CommonResult kaptcha(HttpServletRequest request) {
+        String kaptcha = doKaptcha(request);
+        System.out.println("获取验证码: " + kaptcha);
+        if (kaptcha != null) {
+            System.out.println("进来");
+            return CommonResult.success(kaptcha);
+        }
+        return CommonResult.failed();
+    }
+
+    private String doKaptcha(HttpServletRequest request) {
+        // 生成验证码
+        String text = kaptchaProducer.createText();
+        BufferedImage image = kaptchaProducer.createImage(text);
+        HttpSession session = request.getSession();
+        session.setAttribute("kaptcha", text);
+
+        try {
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            ImageIO.write(image, "jpeg", outputStream);
+            BASE64Encoder encoder = new BASE64Encoder();
+            String base64 = encoder.encode(outputStream.toByteArray());
+            String captchaBase64 = "data:image/jpeg;base64," + base64.replaceAll("\r\n", "");
+            return captchaBase64;
+        } catch (IOException e) {
+            return null;
+        }
     }
 
     @ApiOperation(value = "刷新token")
@@ -98,7 +141,8 @@ public class SpsUserController {
         data.put("menus", roleService.getMenuList(spsUser.getId()));
         List<SpsRole> roleList = userService.getRoleList(spsUser.getId());
         if (CollUtil.isNotEmpty(roleList)) {
-            List<String> roles = roleList.stream().map(SpsRole::getName).collect(Collectors.toList());
+            List<String> roles =
+                    roleList.stream().map(SpsRole::getName).collect(Collectors.toList());
             data.put("roles", roles);
         }
         return CommonResult.success(data);
@@ -114,9 +158,12 @@ public class SpsUserController {
     @ApiOperation("根据用户名或姓名分页获取用户列表")
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     @ResponseBody
-    public CommonResult<CommonPage<SpsUser>> list(@RequestParam(value = "keyword", required = false) String keyword,
-                                                  @RequestParam(value = "pageSize", defaultValue = "5") Integer pageSize,
-                                                  @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum) {
+    public CommonResult<CommonPage<SpsUser>> list(@RequestParam(value = "keyword", required =
+            false) String keyword,
+                                                  @RequestParam(value = "pageSize", defaultValue
+                                                          = "5") Integer pageSize,
+                                                  @RequestParam(value = "pageNum", defaultValue =
+                                                          "1") Integer pageNum) {
         Page<SpsUser> userList = userService.list(keyword, pageSize, pageNum);
         return CommonResult.success(CommonPage.restPage(userList));
     }
@@ -172,7 +219,8 @@ public class SpsUserController {
     @ApiOperation("修改帐号状态")
     @RequestMapping(value = "/updateStatus/{id}", method = RequestMethod.POST)
     @ResponseBody
-    public CommonResult updateStatus(@PathVariable Long id, @RequestParam(value = "status") Integer status) {
+    public CommonResult updateStatus(@PathVariable Long id,
+                                     @RequestParam(value = "status") Integer status) {
         SpsUser spsUser = new SpsUser();
         spsUser.setStatus(status);
         boolean success = userService.update(id, spsUser);
@@ -200,6 +248,22 @@ public class SpsUserController {
     public CommonResult<List<SpsRole>> getRoleList(@PathVariable Long userId) {
         List<SpsRole> roleList = userService.getRoleList(userId);
         return CommonResult.success(roleList);
+    }
+
+    @ApiOperation("用户名是否占用")
+    @RequestMapping(value = "/existUsername/{username}")
+    @ResponseBody
+    public CommonResult existUsername(@PathVariable String username) {
+        SpsUser spsUser = userService.getUserByUsername(username);
+        return CommonResult.success(spsUser);
+    }
+
+    @ApiOperation("手机号是否占用")
+    @RequestMapping(value = "/existPhone/{phone}")
+    @ResponseBody
+    public CommonResult existPhone(@PathVariable String phone) {
+        SpsUser spsUser = userService.getUserByPhone(phone);
+        return CommonResult.success(spsUser);
     }
 
 }

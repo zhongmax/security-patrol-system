@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.csmaxwell.sps.base.domain.SpsPermission;
 import com.csmaxwell.sps.base.domain.SpsRole;
 import com.csmaxwell.sps.base.domain.SpsUser;
-import com.csmaxwell.sps.base.dto.UserParam;
+import com.csmaxwell.sps.base.dto.UserRegisterParam;
 import com.csmaxwell.sps.base.dto.UpdateUserPasswordParam;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +28,11 @@ public interface SpsUserService extends IService<SpsUser> {
     SpsUser getUserByUsername(String username);
 
     /**
+     * 根据手机号获取用户信息
+     */
+    SpsUser getUserByPhone(String phone);
+
+    /**
      * 获取指定用户的可访问权限
      */
     List<SpsPermission> getPermissionList(Long userId);
@@ -40,7 +45,7 @@ public interface SpsUserService extends IService<SpsUser> {
     /**
      * 注册
      */
-    SpsUser register(UserParam userParam);
+    SpsUser register(UserRegisterParam userRegisterParam);
 
     /**
      * 登录（返回token）

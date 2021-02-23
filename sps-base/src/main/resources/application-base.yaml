@@ -48,7 +48,8 @@ secure:
       - /webjars/springfox-swagger-ui/**
       - /actuator/**
       - /druid/**
-      - /user/login
+      - /web/user/login
+      - /web/user/kaptcha
       - /user/register
       - /user/info
       - /user/logout

@@ -26,6 +26,7 @@
         <weixin.version>3.3.0</weixin.version>
         <oss.version>2.5.0</oss.version>
         <aliyun.sdk.version>4.0.3</aliyun.sdk.version>
+        <kaptcha.version>2.3.2</kaptcha.version>
     </properties>
 
     <parent>
@@ -208,6 +209,11 @@
                 <groupId>com.aliyun</groupId>
                 <artifactId>aliyun-java-sdk-core</artifactId>
                 <version>${aliyun.sdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.penggle</groupId>
+                <artifactId>kaptcha</artifactId>
+                <version>${kaptcha.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

@@ -59,10 +59,10 @@ public class SpsMenuServiceImpl extends ServiceImpl<SpsMenuMapper, SpsMenu> impl
     }
 
     @Override
-    public Page<SpsMenu> list(Long parentId, Integer pageSize, Integer pageNum) {
+    public Page<SpsMenu> list(Long pId, Integer pageSize, Integer pageNum) {
         Page<SpsMenu> page = new Page<>(pageNum, pageSize);
         QueryWrapper<SpsMenu> wrapper = new QueryWrapper<>();
-        wrapper.lambda().eq(SpsMenu::getPid, parentId).orderByDesc(SpsMenu::getSort);
+        wrapper.lambda().eq(SpsMenu::getPid, pId).orderByDesc(SpsMenu::getSort);
         return page(page, wrapper);
     }
 
