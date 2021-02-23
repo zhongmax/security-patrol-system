@@ -51,7 +51,7 @@ public class SpsRoleServiceImpl extends ServiceImpl<SpsRoleMapper, SpsRole> impl
     public boolean delete(List<Long> ids) {
         boolean success = removeByIds(ids);
         userCacheService.delPermissionListByRoleIds(ids);
-        return false;
+        return success;
     }
 
     @Override
